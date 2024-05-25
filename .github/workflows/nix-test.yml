@@ -1,0 +1,17 @@
+name: nix-test
+
+on:
+  push:
+
+permissions: {}
+
+jobs:
+  run-nix-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install Nix
+      uses: cachix/install-nix-action@v26
+    - name: Run nix-flake-check
+      run: nix flake check --all-systems
