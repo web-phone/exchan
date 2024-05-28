@@ -1,8 +1,8 @@
 use axum::{
     body::Body, extract::State, http::StatusCode, response::IntoResponse, response::Response,
-    routing::get, routing::post, Router,
+    routing::get, routing::post, Router, Json
 };
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use std::sync::Arc;
 use tokio::net::TcpListener;
 
@@ -32,7 +32,7 @@ async fn addresses(State(userlist): State<Arc<Vec<UserInfo>>>) -> impl IntoRespo
     serde_json::to_string(&userlist).expect("failed to serialize")
 }
 
-async fn push_user() -> impl IntoResponse {
+async fn push_user(State(userlist): State<Arc<Vec<UserInfo>>>, Json(request): Json<Arc<UserInfo>>) -> impl IntoResponse {
     Response::builder()
         .status(StatusCode::CREATED)
         .body(Body::from("User created successfully"))
@@ -43,7 +43,7 @@ async fn homepage() -> impl IntoResponse {
     "there is no data... Please go to /addresses !!".to_string()
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 struct UserInfo {
     username: String,
     phone_hash: Vec<String>,
