@@ -30,7 +30,7 @@ pub fn user_to_hash(
     format!("{}@{}:{}", username, hostname, hash)
 }
 
-// test module
+/// test module
 #[cfg(test)]
 mod tests {
     use super::user_to_hash;
