@@ -11,6 +11,8 @@ async fn main() {
         .route("/", get(homepage));
 
     let listener: TcpListener = tokio::net::TcpListener::bind(ADDRESS).await.unwrap();
+
+    println!("Serve in 'http://{}'...", ADDRESS);
     axum::serve(listener, app).await.unwrap();
 }
 
