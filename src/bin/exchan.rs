@@ -1,4 +1,7 @@
-use axum::{extract::State, routing::get, routing::post, Router, body::Body, response::IntoResponse, response::Response, http::StatusCode};
+use axum::{
+    body::Body, extract::State, http::StatusCode, response::IntoResponse, response::Response,
+    routing::get, routing::post, Router,
+};
 use serde::Serialize;
 use std::sync::Arc;
 use tokio::net::TcpListener;
