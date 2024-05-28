@@ -1,8 +1,8 @@
 use axum::{
     body::Body, extract::State, http::StatusCode, response::IntoResponse, response::Response,
-    routing::get, routing::post, Router, Json
+    routing::get, routing::post, Json, Router,
 };
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::sync::Mutex;
 use tokio::{
@@ -36,7 +36,16 @@ async fn addresses(State(userlist): State<Arc<Mutex<Vec<UserInfo>>>>) -> impl In
     serde_json::to_string(&userlist).expect("failed to serialize")
 }
 
-async fn push_user(State(userlist): State<Arc<Mutex<Vec<UserInfo>>>>, Json(request): Json<Arc<UserInfo>>) -> impl IntoResponse {
+async fn push_user(
+    State(userlist): State<Arc<Mutex<Vec<UserInfo>>>>,
+    Json(request): Json<Arc<UserInfo>>,
+) -> impl IntoResponse {
+    let mut userlist = userlist.lock().unwrap();
+    userlist.push(UserInfo {
+        username: request.username.clone(),
+        phone_hash: request.phone_hash.clone(),
+    });
+
     Response::builder()
         .status(StatusCode::CREATED)
         .body(Body::from("User created successfully"))
