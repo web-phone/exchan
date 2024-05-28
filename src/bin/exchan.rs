@@ -4,17 +4,21 @@ use axum::{
 };
 use serde::{Serialize, Deserialize};
 use std::sync::Arc;
-use tokio::net::TcpListener;
+use std::sync::Mutex;
+use tokio::{
+    net::TcpListener,
+    //sync::Mutex
+};
 
 const ADDRESS: &str = "127.0.0.1:8888";
 const ADDRESSES_PATH: &str = "/addresses";
 
 #[tokio::main]
 async fn main() {
-    let userlist: Arc<Vec<UserInfo>> = Arc::new(vec![UserInfo {
+    let userlist: Arc<Mutex<Vec<UserInfo>>> = Arc::new(Mutex::new(vec![UserInfo {
         username: "haruki7049".to_string(),
         phone_hash: vec!["test_hash".to_string()],
-    }]);
+    }]));
 
     let app: Router = Router::new()
         .route(ADDRESSES_PATH, get(addresses))
@@ -28,11 +32,11 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn addresses(State(userlist): State<Arc<Vec<UserInfo>>>) -> impl IntoResponse {
+async fn addresses(State(userlist): State<Arc<Mutex<Vec<UserInfo>>>>) -> impl IntoResponse {
     serde_json::to_string(&userlist).expect("failed to serialize")
 }
 
-async fn push_user(State(userlist): State<Arc<Vec<UserInfo>>>, Json(request): Json<Arc<UserInfo>>) -> impl IntoResponse {
+async fn push_user(State(userlist): State<Arc<Mutex<Vec<UserInfo>>>>, Json(request): Json<Arc<UserInfo>>) -> impl IntoResponse {
     Response::builder()
         .status(StatusCode::CREATED)
         .body(Body::from("User created successfully"))
