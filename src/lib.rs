@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
+use clap::Parser;
 use macaddr::MacAddr6;
 use sha256::digest;
-use clap::Parser;
 
 /// Calculate a hash from a username, date and mac address.
 /// This function returns a string with the username and the hash separated by a dash.

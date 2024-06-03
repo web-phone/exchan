@@ -2,12 +2,12 @@ use axum::{
     body::Body, extract::State, http::StatusCode, response::IntoResponse, response::Response,
     routing::get, routing::post, Json, Router,
 };
+use clap::Parser;
+use exchan::CommandLineArgs;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::sync::Mutex;
 use tokio::net::TcpListener;
-use clap::Parser;
-use exchan::CommandLineArgs;
 
 const ADDRESS: &str = "127.0.0.1:8888";
 const ADDRESSES_PATH: &str = "/addresses";
