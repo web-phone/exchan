@@ -2,19 +2,32 @@ use axum::{
     body::Body, extract::State, http::StatusCode, response::IntoResponse, response::Response,
     routing::get, routing::post, Json, Router,
 };
+use clap::Parser;
+use exchan::CommandLineArgs;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::sync::Mutex;
-use tokio::{
-    net::TcpListener,
-    //sync::Mutex
-};
+use tokio::net::TcpListener;
 
 const ADDRESS: &str = "127.0.0.1:8888";
 const ADDRESSES_PATH: &str = "/addresses";
 
 #[tokio::main]
 async fn main() {
+    let args: CommandLineArgs = CommandLineArgs::parse();
+
+    match (args.debug, args.production) {
+        (true, false) => debug_mode().await,
+        (false, true) => production_mode().await,
+        _ => panic!("You must choose one mode"),
+    }
+}
+
+async fn production_mode() {
+    todo!("Production mode is not implemented yet");
+}
+
+async fn debug_mode() {
     let userlist: Arc<Mutex<Vec<UserInfo>>> = Arc::new(Mutex::new(vec![UserInfo {
         username: "haruki7049".to_string(),
         phone_hash: vec!["test_hash".to_string()],
