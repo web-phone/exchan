@@ -1,8 +1,6 @@
 name: Coverage
-
 on:
   push:
-
 jobs:
   coverage:
     runs-on: ubuntu-latest
