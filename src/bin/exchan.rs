@@ -10,6 +10,7 @@ use tokio::{
     //sync::Mutex
 };
 use clap::Parser;
+use exchan::CommandLineArgs;
 
 const ADDRESS: &str = "127.0.0.1:8888";
 const ADDRESSES_PATH: &str = "/addresses";
@@ -75,13 +76,4 @@ async fn homepage() -> impl IntoResponse {
 struct UserInfo {
     username: String,
     phone_hash: Vec<String>,
-}
-
-#[derive(Debug, Parser)]
-struct CommandLineArgs {
-    #[clap(short, long, default_value_t = false)]
-    debug: bool,
-
-    #[clap(short, long, default_value_t = false)]
-    production: bool,
 }

@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use macaddr::MacAddr6;
 use sha256::digest;
+use clap::Parser;
 
 /// Calculate a hash from a username, date and mac address.
 /// This function returns a string with the username and the hash separated by a dash.
@@ -28,6 +29,16 @@ pub fn user_to_hash(
     let data: String = format!("{}{}{}{}", username, date, macaddr, hostname);
     let hash: String = digest(data);
     format!("{}@{}:{}", username, hostname, hash)
+}
+
+/// Command line arguments
+#[derive(Debug, Parser)]
+pub struct CommandLineArgs {
+    #[clap(short, long, default_value_t = false)]
+    pub debug: bool,
+
+    #[clap(short, long, default_value_t = false)]
+    pub production: bool,
 }
 
 /// test module
