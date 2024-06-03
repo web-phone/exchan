@@ -9,12 +9,27 @@ use tokio::{
     net::TcpListener,
     //sync::Mutex
 };
+use clap::Parser;
 
 const ADDRESS: &str = "127.0.0.1:8888";
 const ADDRESSES_PATH: &str = "/addresses";
 
 #[tokio::main]
 async fn main() {
+    let args: CommandLineArgs = CommandLineArgs::parse();
+
+    match (args.debug, args.production) {
+        (true, false) => debug_mode().await,
+        (false, true) => production_mode().await,
+        _ => panic!("You must choose one mode"),
+    }
+}
+
+async fn production_mode() {
+    todo!("Production mode is not implemented yet");
+}
+
+async fn debug_mode() {
     let userlist: Arc<Mutex<Vec<UserInfo>>> = Arc::new(Mutex::new(vec![UserInfo {
         username: "haruki7049".to_string(),
         phone_hash: vec!["test_hash".to_string()],
@@ -60,4 +75,13 @@ async fn homepage() -> impl IntoResponse {
 struct UserInfo {
     username: String,
     phone_hash: Vec<String>,
+}
+
+#[derive(Debug, Parser)]
+struct CommandLineArgs {
+    #[clap(short, long, default_value_t = false)]
+    debug: bool,
+
+    #[clap(short, long, default_value_t = false)]
+    production: bool,
 }
