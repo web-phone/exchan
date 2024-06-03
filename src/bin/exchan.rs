@@ -42,6 +42,13 @@ async fn debug_mode() {
     let listener: TcpListener = tokio::net::TcpListener::bind(ADDRESS).await.unwrap();
 
     println!("Serve in 'http://{}'...", ADDRESS);
+
+    tokio::spawn(async move {
+        tokio::signal::ctrl_c().await.unwrap();
+        println!("Shutting down...");
+        std::process::exit(0);
+    });
+
     axum::serve(listener, app).await.unwrap();
 }
 
