@@ -23,10 +23,12 @@ async fn main() {
     }
 }
 
+/// A Production mode server
 async fn production_mode() {
     todo!("Production mode is not implemented yet");
 }
 
+/// A Debug mode server
 async fn debug_mode() {
     let userlist: Arc<Mutex<Vec<UserInfo>>> = Arc::new(Mutex::new(vec![UserInfo {
         username: "haruki7049".to_string(),
@@ -43,6 +45,7 @@ async fn debug_mode() {
 
     println!("Serve in 'http://{}'...", ADDRESS);
 
+    // Setup Ctrl+c handler
     tokio::spawn(async move {
         tokio::signal::ctrl_c().await.unwrap();
         println!("Shutting down...");
@@ -52,6 +55,7 @@ async fn debug_mode() {
     axum::serve(listener, app).await.unwrap();
 }
 
+/// A handler for GET /addresses
 async fn addresses(State(userlist): State<Arc<Mutex<Vec<UserInfo>>>>) -> impl IntoResponse {
     let userlist = userlist.lock().unwrap();
     let json = serde_json::to_string(&*userlist).expect("failed to serialize");
@@ -61,6 +65,7 @@ async fn addresses(State(userlist): State<Arc<Mutex<Vec<UserInfo>>>>) -> impl In
         .unwrap()
 }
 
+/// A handler for POST /push_user
 async fn push_user(
     State(userlist): State<Arc<Mutex<Vec<UserInfo>>>>,
     Json(request): Json<UserInfo>,
@@ -77,10 +82,12 @@ async fn push_user(
         .unwrap()
 }
 
+/// A handler for GET /
 async fn homepage() -> impl IntoResponse {
     "there is no data... Please go to /addresses !!".to_string()
 }
 
+/// A User information
 #[derive(Deserialize, Serialize, Debug, Clone)]
 struct UserInfo {
     username: String,
