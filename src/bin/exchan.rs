@@ -46,12 +46,17 @@ async fn debug_mode() {
 }
 
 async fn addresses(State(userlist): State<Arc<Mutex<Vec<UserInfo>>>>) -> impl IntoResponse {
-    serde_json::to_string(&userlist).expect("failed to serialize")
+    let userlist = userlist.lock().unwrap();
+    let json = serde_json::to_string(&*userlist).expect("failed to serialize");
+    Response::builder()
+        .status(StatusCode::OK)
+        .body(Body::from(json))
+        .unwrap()
 }
 
 async fn push_user(
     State(userlist): State<Arc<Mutex<Vec<UserInfo>>>>,
-    Json(request): Json<Arc<UserInfo>>,
+    Json(request): Json<UserInfo>,
 ) -> impl IntoResponse {
     let mut userlist = userlist.lock().unwrap();
     userlist.push(UserInfo {

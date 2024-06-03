@@ -20,8 +20,12 @@ macaddr = "1.0.1"
 serde = { version = "1.0.198", features = ["derive"] }
 serde_json = "1.0.117"
 sha256 = "1.5.0"
-surrealdb = "1.4.2"
+surrealdb = { version = "1.4.2", optional = true }
 tokio = { version = "1.37.0", features = ["macros", "full"] }
 
 [dev-dependencies]
 assert_cmd = "2.0.14"
+
+[features]
+default = []
+with_surrealdb = ["surrealdb"]
