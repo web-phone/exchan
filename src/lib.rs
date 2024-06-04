@@ -1,4 +1,5 @@
 use chrono::{DateTime, Utc};
+use clap::Parser;
 use macaddr::MacAddr6;
 use sha256::digest;
 
@@ -28,6 +29,16 @@ pub fn user_to_hash(
     let data: String = format!("{}{}{}{}", username, date, macaddr, hostname);
     let hash: String = digest(data);
     format!("{}@{}:{}", username, hostname, hash)
+}
+
+/// Command line arguments
+#[derive(Debug, Parser)]
+pub struct CommandLineArgs {
+    #[clap(short, long, default_value_t = false)]
+    pub debug: bool,
+
+    #[clap(short, long, default_value_t = false)]
+    pub production: bool,
 }
 
 /// test module
