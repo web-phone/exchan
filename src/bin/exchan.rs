@@ -43,7 +43,10 @@ async fn debug_mode() {
 
     let listener: TcpListener = tokio::net::TcpListener::bind(ADDRESS).await.unwrap();
 
-    println!("Serve in 'http://{}'...\nEnter 'exit' if you want to shutdown exchan...", ADDRESS);
+    println!(
+        "Serve in 'http://{}'...\nEnter 'exit' if you want to shutdown exchan...",
+        ADDRESS
+    );
 
     // Setup Ctrl+c handler
     tokio::spawn(async move {
