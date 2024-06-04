@@ -43,11 +43,11 @@ async fn debug_mode() {
 
     let listener: TcpListener = tokio::net::TcpListener::bind(ADDRESS).await.unwrap();
 
-    println!("Serve in 'http://{}'...", ADDRESS);
+    println!("Serve in 'http://{}'...\nEnter 'exit' if you want to shutdown exchan...", ADDRESS);
 
     // Setup Ctrl+c handler
     tokio::spawn(async move {
-        tokio::signal::ctrl_c().await.unwrap();
+        wait_exit().await;
         println!("Shutting down...");
         std::process::exit(0);
     });
@@ -85,6 +85,15 @@ async fn push_user(
 /// A handler for GET /
 async fn homepage() -> impl IntoResponse {
     "there is no data... Please go to /addresses !!".to_string()
+}
+
+/// Wait to enter "exit" to shutdown the server
+async fn wait_exit() {
+    let mut input = String::new();
+    while input.trim() != "exit" {
+        input.clear();
+        std::io::stdin().read_line(&mut input).unwrap();
+    }
 }
 
 /// A User information
