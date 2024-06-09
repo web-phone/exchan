@@ -64,6 +64,7 @@
             rust
             surrealdb."1.4.2"
             surrealist."2.0.5"
+            nixd
           ];
 
           shellHook = ''
