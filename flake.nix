@@ -9,7 +9,7 @@
     crane.url = "github:ipetkov/crane";
   };
 
-  outputs = { self, nixpkgs, treefmt-nix, rust-overlay, surrealdb-overlay, surrealist-overlay, flake-utils, crane, systems }:
+  outputs = { self, nixpkgs, treefmt-nix, rust-overlay, surrealdb-overlay, surrealist-overlay, flake-utils, crane }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         overlays = [ (import rust-overlay) (import surrealdb-overlay) (import surrealist-overlay) ];
@@ -60,11 +60,11 @@
         };
 
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [
+          packages = [
             rust
-            surrealdb."1.4.2"
-            surrealist."2.0.5"
-            nixd
+            pkgs.surrealdb."1.4.2"
+            pkgs.surrealist."2.0.5"
+            pkgs.nixd
           ];
 
           shellHook = ''
