@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::sync::Mutex;
 use tokio::net::TcpListener;
-
 const ADDRESS: &str = "127.0.0.1:8888";
 const ADDRESSES_PATH: &str = "/addresses";
 
@@ -32,7 +31,10 @@ async fn production_mode() {
 async fn debug_mode() {
     let userlist: Arc<Mutex<Vec<UserInfo>>> = Arc::new(Mutex::new(vec![UserInfo {
         username: "haruki7049".to_string(),
-        phone_hash: vec!["test_hash".to_string()],
+        device: vec![PhoneInfo {
+            name: String::from("hoge-phone"),
+            hash: String::from("1234512345"),
+        }],
     }]));
 
     let app: Router = Router::new()
@@ -76,7 +78,7 @@ async fn push_user(
     let mut userlist = userlist.lock().unwrap();
     userlist.push(UserInfo {
         username: request.username.clone(),
-        phone_hash: request.phone_hash.clone(),
+        device: request.device.clone(),
     });
 
     Response::builder()
@@ -103,5 +105,12 @@ async fn wait_exit() {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 struct UserInfo {
     username: String,
-    phone_hash: Vec<String>,
+    device: Vec<PhoneInfo>,
+}
+
+/// A device information
+#[derive(Deserialize, Serialize, Debug, Clone)]
+struct PhoneInfo {
+    name: String,
+    hash: String,
 }
