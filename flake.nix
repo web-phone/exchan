@@ -19,8 +19,13 @@
         };
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
         rust = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-        craneLib = (crane.mkLib pkgs).overrideToolchain rust;
+        rust-nightly = pkgs.rust-bin.selectLatestNightlyWith (toolchain: toolchain.default.override {
+          extensions = [ "llvm-tools-preview" "rust-src" ];
+        });
         src = ./.;
+
+        # Rust Stable version
+        craneLib = (crane.mkLib pkgs).overrideToolchain rust;
         cargoArtifacts = craneLib.buildDepsOnly {
           inherit src;
         };
@@ -49,17 +54,60 @@
           cargoLlvmCovCommand = "test";
           cargoLlvmCovExtraArgs = "--text --output-dir $out";
         };
+
+        # Rust Nightly version
+        craneLib-nightly = (crane.mkLib pkgs).overrideToolchain rust-nightly;
+        cargoArtifacts-nightly = craneLib-nightly.buildDepsOnly {
+          inherit src;
+        };
+        exchan-nightly = craneLib-nightly.buildPackage {
+          inherit src cargoArtifacts-nightly;
+          strictDeps = true;
+
+          doCheck = true;
+        };
+        cargo-clippy-nightly = craneLib-nightly.cargoClippy {
+          inherit cargoArtifacts-nightly src;
+          cargoClippyExtraArgs = "--verbose -- --deny warnings";
+        };
+        cargo-doc-nightly = craneLib-nightly.cargoDoc {
+          inherit cargoArtifacts-nightly src;
+        };
+        llvm-cov-nightly = craneLib-nightly.cargoLlvmCov {
+          inherit cargoArtifacts-nightly src;
+          cargoExtraArgs = "--locked";
+          cargoLlvmCovCommand = "test";
+          cargoLlvmCovExtraArgs = "--html --output-dir $out";
+        };
+        llvm-cov-text-nightly = craneLib-nightly.cargoLlvmCov {
+          inherit cargoArtifacts-nightly src;
+          cargoExtraArgs = "--locked";
+          cargoLlvmCovCommand = "test";
+          cargoLlvmCovExtraArgs = "--text --output-dir $out";
+        };
       in
       {
         formatter = treefmtEval.config.build.wrapper;
 
-        packages.default = exchan;
-        packages.doc = cargo-doc;
-        packages.runDB = pkgs.writeShellScriptBin "db-runner.sh" ''
-          ${pkgs.surrealdb."1.4.2"}/bin/surreal start memory -A --auth --user test-db --pass test-db
-        '';
-        packages.llvm-cov = llvm-cov;
-        packages.llvm-cov-text = llvm-cov-text;
+        packages = {
+          stable = {
+            default = exchan;
+            doc = cargo-doc;
+            llvm-cov = llvm-cov;
+            llvm-cov-text = llvm-cov-text;
+          };
+
+          runDB = pkgs.writeShellScriptBin "db-runner.sh" ''
+            ${pkgs.surrealdb."1.4.2"}/bin/surreal start memory -A --auth --user test-db --pass test-db
+          '';
+
+          nightly = {
+            default = exchan-nightly;
+            doc = cargo-doc-nightly;
+            llvm-cov = llvm-cov-nightly;
+            llvm-cov-text = llvm-cov-text-nightly;
+          };
+        };
 
         apps.default = flake-utils.lib.mkApp {
           drv = self.packages.${system}.default;
@@ -69,7 +117,7 @@
         };
 
         checks = {
-          inherit exchan cargo-clippy cargo-doc llvm-cov llvm-cov-text;
+          inherit exchan cargo-clippy cargo-doc cargo-clippy-nightly cargo-doc-nightly llvm-cov llvm-cov-text llvm-cov-nightly llvm-cov-text-nightly;
           formatting = treefmtEval.config.build.check self;
         };
 
