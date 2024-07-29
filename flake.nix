@@ -37,6 +37,18 @@
         cargo-doc = craneLib.cargoDoc {
           inherit cargoArtifacts src;
         };
+        llvm-cov = craneLib.cargoLlvmCov {
+          inherit cargoArtifacts src;
+          cargoExtraArgs = "--locked";
+          cargoLlvmCovCommand = "test";
+          cargoLlvmCovExtraArgs = "--html --output-dir $out";
+        };
+        llvm-cov-text = craneLib.cargoLlvmCov {
+          inherit cargoArtifacts src;
+          cargoExtraArgs = "--locked";
+          cargoLlvmCovCommand = "test";
+          cargoLlvmCovExtraArgs = "--text --output-dir $out";
+        };
       in
       {
         formatter = treefmtEval.config.build.wrapper;
@@ -46,6 +58,8 @@
         packages.runDB = pkgs.writeShellScriptBin "db-runner.sh" ''
           ${pkgs.surrealdb."1.4.2"}/bin/surreal start memory -A --auth --user test-db --pass test-db
         '';
+        packages.llvm-cov = llvm-cov;
+        packages.llvm-cov-text = llvm-cov-text;
 
         apps.default = flake-utils.lib.mkApp {
           drv = self.packages.${system}.default;
@@ -55,7 +69,7 @@
         };
 
         checks = {
-          inherit exchan cargo-clippy cargo-doc;
+          inherit exchan cargo-clippy cargo-doc llvm-cov llvm-cov-text;
           formatting = treefmtEval.config.build.check self;
         };
 
