@@ -90,23 +90,19 @@
         formatter = treefmtEval.config.build.wrapper;
 
         packages = {
-          stable = {
-            default = exchan;
-            doc = cargo-doc;
-            llvm-cov = llvm-cov;
-            llvm-cov-text = llvm-cov-text;
-          };
+          default-stable = exchan;
+          doc-stable = cargo-doc;
+          llvm-cov-stable = llvm-cov;
+          llvm-cov-text-stable = llvm-cov-text;
 
           runDB = pkgs.writeShellScriptBin "db-runner.sh" ''
             ${pkgs.surrealdb."1.4.2"}/bin/surreal start memory -A --auth --user test-db --pass test-db
           '';
 
-          nightly = {
-            default = exchan-nightly;
-            doc = cargo-doc-nightly;
-            llvm-cov = llvm-cov-nightly;
-            llvm-cov-text = llvm-cov-text-nightly;
-          };
+          default-nightly = exchan-nightly;
+          doc-nightly = cargo-doc-nightly;
+          llvm-cov-nightly = llvm-cov-nightly;
+          llvm-cov-text-nightly = llvm-cov-text-nightly;
         };
 
         apps.default = flake-utils.lib.mkApp {
