@@ -1,4 +1,4 @@
 [toolchain]
-channel = "1.77.1"
+channel = "1.80.0"
 components = ["rust-src", "rust-analyzer", "llvm-tools-preview"]
 profile = "default"
